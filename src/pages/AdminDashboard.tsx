@@ -172,34 +172,46 @@ export default function AdminDashboard() {
   };
 
   const updateUserStatus = async (userId: string, status: 'approved' | 'declined' | 'deactivated') => {
-    try {
-      console.log('Attempting to update user:', userId, 'to status:', status);
-      
-      const { data, error } = await supabase
-        .from('profiles')
-        .update({ status })
-        .eq('user_id', userId)
-        .select();
+  try {
+    console.log('Attempting to update user:', userId, 'to status:', status);
+    
+    // Changed from .eq('user_id', userId) to .eq('id', userId)
+    const { data, error } = await supabase
+      .from('profiles')
+      .update({ status })
+      .eq('id', userId)  // This should match the primary key field
+      .select();
 
-      console.log('Update result:', { data, error });
+    console.log('Update result:', { data, error });
 
-      if (error) throw error;
+    if (error) throw error;
 
+    // Check if any rows were updated
+    if (!data || data.length === 0) {
+      console.warn('No rows were updated. User ID might not exist:', userId);
       toast({
-        title: "User Status Updated",
-        description: `User status changed to ${status}`
-      });
-
-      fetchUsers();
-    } catch (error: any) {
-      console.error('Update error:', error);
-      toast({
-        title: "Error",
-        description: error.message,
+        title: "Warning",
+        description: "User not found or no changes made",
         variant: "destructive"
       });
+      return;
     }
-  };
+
+    toast({
+      title: "User Status Updated",
+      description: `User status changed to ${status}`
+    });
+
+    fetchUsers();
+  } catch (error: any) {
+    console.error('Update error:', error);
+    toast({
+      title: "Error",
+      description: error.message,
+      variant: "destructive"
+    });
+  }
+};
 
   const updateTransactionStatus = async (transactionId: string, status: 'approved' | 'declined' | 'delayed') => {
     try {

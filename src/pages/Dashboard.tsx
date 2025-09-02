@@ -69,11 +69,11 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-muted-foreground">
-              Thank you for applying! Your account is currently being reviewed by our team. 
+              Thank you for creating an account with us! Your account is currently being reviewed by our team. 
               You'll receive an email notification once your account is approved.
             </p>
             <Badge variant="outline" className="bg-warning/10 text-warning border-warning/20">
-              Pending Admin Approval
+              Pending Approval
             </Badge>
             <Button variant="outline" onClick={signOut} className="w-full mt-4">
               Sign Out
