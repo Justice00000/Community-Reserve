@@ -186,9 +186,36 @@ export default function AdminDashboard() {
 
     if (error) throw error;
 
+<<<<<<< HEAD
     // Check if any rows were updated
     if (!data || data.length === 0) {
       console.warn('No rows were updated. User ID might not exist:', userId);
+=======
+      // Send email notification
+      const userProfile = data?.[0];
+      if (userProfile?.email) {
+        try {
+          await supabase.functions.invoke('send-admin-notification', {
+            body: {
+              user_email: userProfile.email,
+              subject: `Account Status Update - ${status.charAt(0).toUpperCase() + status.slice(1)}`,
+              message: `Your account status has been updated to "${status}". ${
+                status === 'approved' 
+                  ? 'You can now access all banking features.' 
+                  : status === 'declined'
+                  ? 'Please contact support for more information.'
+                  : 'Your account has been temporarily deactivated.'
+              }`,
+              action_type: 'user_status',
+              details: { status, updated_by: profile?.email }
+            }
+          });
+        } catch (emailError) {
+          console.error('Failed to send email notification:', emailError);
+        }
+      }
+
+>>>>>>> 74e9609be150858cfdfe102f05a8a6fbbf1cd5f4
       toast({
         title: "Warning",
         description: "User not found or no changes made",
@@ -229,8 +256,39 @@ export default function AdminDashboard() {
 
       if (error) throw error;
 
-      // If approved, we'd typically trigger balance updates here
-      // For now, just show success message
+      // Send email notification
+      const transaction = transactions.find(t => t.id === transactionId);
+      if (transaction?.profiles?.email) {
+        try {
+          await supabase.functions.invoke('send-admin-notification', {
+            body: {
+              user_email: transaction.profiles.email,
+              subject: `Transaction ${status.charAt(0).toUpperCase() + status.slice(1)} - ${formatCurrency(transaction.amount)}`,
+              message: `Your ${transaction.type} transaction of ${formatCurrency(transaction.amount)} has been ${status}.${
+                notes ? ` Admin notes: ${notes}` : ''
+              }${
+                status === 'approved' 
+                  ? ' The funds should be reflected in your account shortly.' 
+                  : status === 'declined'
+                  ? ' Please contact support if you have questions.'
+                  : ' There may be a delay in processing. We\'ll update you soon.'
+              }`,
+              action_type: 'transaction',
+              details: { 
+                transaction_id: transactionId,
+                amount: transaction.amount,
+                type: transaction.type,
+                status,
+                notes,
+                processed_by: profile?.email 
+              }
+            }
+          });
+        } catch (emailError) {
+          console.error('Failed to send email notification:', emailError);
+        }
+      }
+
       toast({
         title: "Transaction Updated",
         description: `Transaction ${status}`
@@ -262,6 +320,36 @@ export default function AdminDashboard() {
         .eq('id', docId);
 
       if (error) throw error;
+
+      // Send email notification
+      const kycDoc = kycDocuments.find(d => d.id === docId);
+      if (kycDoc?.profiles?.email) {
+        try {
+          await supabase.functions.invoke('send-admin-notification', {
+            body: {
+              user_email: kycDoc.profiles.email,
+              subject: `KYC Document ${status.charAt(0).toUpperCase() + status.slice(1)} - ${kycDoc.document_type}`,
+              message: `Your KYC document (${kycDoc.document_type}) has been ${status}.${
+                notes ? ` Review notes: ${notes}` : ''
+              }${
+                status === 'approved' 
+                  ? ' Your account verification is now complete.' 
+                  : ' Please review the feedback and resubmit if necessary.'
+              }`,
+              action_type: 'kyc',
+              details: { 
+                document_id: docId,
+                document_type: kycDoc.document_type,
+                status,
+                notes,
+                reviewed_by: profile?.email 
+              }
+            }
+          });
+        } catch (emailError) {
+          console.error('Failed to send email notification:', emailError);
+        }
+      }
 
       toast({
         title: "KYC Document Updated",
