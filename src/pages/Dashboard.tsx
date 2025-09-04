@@ -17,7 +17,11 @@ import {
   CreditCard,
   FileText,
   Bell,
-  Upload
+  Upload,
+  Menu,
+  X,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import { TransactionForm } from '@/components/TransactionForm';
 import { KYCUpload } from '@/components/KYCUpload';
@@ -46,6 +50,7 @@ export default function Dashboard() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [showBalance, setShowBalance] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
+  const [isHeaderCollapsed, setIsHeaderCollapsed] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -176,25 +181,86 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-fintech-bg">
       {/* Header */}
-      <header className="bg-white border-b border-fintech-border">
+      <header className="bg-white border-b border-fintech-border sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div>
-              <h1 className="text-2xl font-bold text-fintech-text">FinTech Pro</h1>
-              <p className="text-sm text-fintech-muted">
-                Welcome back, {profile?.first_name}
-              </p>
+              <h1 className="text-xl sm:text-2xl font-bold text-fintech-text">FinTech Pro</h1>
+              {!isHeaderCollapsed && (
+                <p className="text-sm text-fintech-muted">
+                  Welcome back, {profile?.first_name}
+                </p>
+              )}
             </div>
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center gap-2">
+              {/* Toggle Button */}
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => setIsHeaderCollapsed(!isHeaderCollapsed)}
+                className="p-2"
+              >
+                {isHeaderCollapsed ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
+              </Button>
+              
+              {/* Mobile Menu Button */}
+              <div className="sm:hidden">
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => setIsHeaderCollapsed(!isHeaderCollapsed)}
+                  className="p-2"
+                >
+                  {isHeaderCollapsed ? <Menu className="w-4 h-4" /> : <X className="w-4 h-4" />}
+                </Button>
+              </div>
+              
+              {/* Desktop Navigation - Always visible */}
+              <div className="hidden sm:flex items-center gap-2">
+                {profile?.is_admin && (
+                  <Button variant="outline" size="sm" onClick={() => window.location.href = '/admin'}>
+                    Admin Panel
+                  </Button>
+                )}
+                <Button variant="outline" size="sm" onClick={() => window.location.href = '/settings'}>
+                  Settings
+                </Button>
+                <Button variant="outline" size="sm" onClick={signOut}>
+                  Sign Out
+                </Button>
+              </div>
+            </div>
+          </div>
+          
+          {/* Collapsible Mobile Navigation */}
+          <div className={`sm:hidden transition-all duration-300 ease-in-out overflow-hidden ${
+            isHeaderCollapsed ? 'max-h-0 opacity-0' : 'max-h-48 opacity-100 pb-4'
+          }`}>
+            <div className="flex flex-col gap-2 pt-2 border-t border-fintech-border">
               {profile?.is_admin && (
-                <Button variant="outline" onClick={() => window.location.href = '/admin'}>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => window.location.href = '/admin'}
+                  className="justify-start"
+                >
                   Admin Panel
                 </Button>
               )}
-              <Button variant="outline" onClick={() => window.location.href = '/settings'}>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => window.location.href = '/settings'}
+                className="justify-start"
+              >
                 Settings
               </Button>
-              <Button variant="outline" onClick={signOut}>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={signOut}
+                className="justify-start"
+              >
                 Sign Out
               </Button>
             </div>
@@ -235,16 +301,16 @@ export default function Dashboard() {
 
           {/* Main Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="transactions">Transactions</TabsTrigger>
-              <TabsTrigger value="transfer">Money</TabsTrigger>
-              <TabsTrigger value="documents">Documents</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 h-auto">
+              <TabsTrigger value="overview" className="text-xs sm:text-sm">Overview</TabsTrigger>
+              <TabsTrigger value="transactions" className="text-xs sm:text-sm">Transactions</TabsTrigger>
+              <TabsTrigger value="transfer" className="text-xs sm:text-sm">Money</TabsTrigger>
+              <TabsTrigger value="documents" className="text-xs sm:text-sm">Documents</TabsTrigger>
             </TabsList>
 
             {/* Overview Tab */}
             <TabsContent value="overview" className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">Total Deposits</CardTitle>
