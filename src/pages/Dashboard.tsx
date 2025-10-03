@@ -218,7 +218,7 @@ export default function Dashboard() {
               {/* Desktop Navigation - Always visible */}
               <div className="hidden sm:flex items-center gap-2">
                 {profile?.is_admin && (
-                  <Button variant="outline" size="sm" onClick={() => window.location.href = '/admin'}>
+                  <Button variant="outline" size="sm" onClick={() => window.location.href = '/admin/auth'}>
                     Admin Panel
                   </Button>
                 )}
