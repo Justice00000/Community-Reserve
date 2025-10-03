@@ -9,6 +9,9 @@ export default defineConfig(({ mode }) => ({
     host: "::",
     port: 8080,
   },
+  preview: {
+    allowedHosts: ["community-reserve.onrender.com"],
+  },
   plugins: [
     react(),
     mode === 'development' &&
