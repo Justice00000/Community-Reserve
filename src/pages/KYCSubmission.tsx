@@ -76,8 +76,11 @@ export default function KYCSubmission() {
     }
   };
 
+  // Check if documents have actually been uploaded
+  const hasUploadedDocuments = profile?.id_document_url || profile?.proof_of_address_url;
+
   // Show pending review message if documents are submitted (only for logged in users)
-  if (user && profile?.kyc_status === 'pending') {
+  if (user && profile?.kyc_status === 'pending' && hasUploadedDocuments) {
     return (
       <div className="min-h-screen bg-fintech-bg flex items-center justify-center p-4">
         <Card className="w-full max-w-md text-center">
